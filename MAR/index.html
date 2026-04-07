@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026年3月运营+投放总结报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .dashboard-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .dashboard-subtitle {
+            font-size: 18px;
+            color: #5f6368;
+            margin-bottom: 20px;
+        }
+        
+        .period-filter {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .filter-btn {
+            padding: 10px 25px;
+            background: #e8f0fe;
+            border: none;
+            border-radius: 25px;
+            color: #1a73e8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: #1a73e8;
+            color: white;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .metric-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #5f6368;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .metric-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #1a237e;
+            margin-bottom: 10px;
+        }
+        
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .trend-up {
+            color: #34a853;
+        }
+        
+        .trend-down {
+            color: #ea4335;
+        }
+        
+        .trend-neutral {
+            color: #5f6368;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a237e;
+        }
+        
+        .chart-legend {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #5f6368;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .comparison-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .comparison-item {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        
+        .comparison-label {
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 10px;
+        }
+        
+        .comparison-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a237e;
+        }
+        
+        .insights-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .insights-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 20px;
+        }
+        
+        .insights-list {
+            list-style: none;
+        }
+        
+        .insight-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #1a73e8;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .insight-item strong {
+            color: #1a237e;
+        }
+        
+        .recommendation {
+            background: #e6f4ea;
+            border-left: 4px solid #34a853;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .data-table th {
+            background: #1a73e8;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .roi-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        .roi-good {
+            background: #e6f4ea;
+            color: #137333;
+        }
+        
+        .roi-fair {
+            background: #fef7e0;
+            color: #b06000;
+        }
+        
+        .roi-poor {
+            background: #fce8e6;
+            color: #c5221f;
+        }
+        
+        .tab-container {
+            margin-bottom: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 30px;
+            background: #e8f0fe;
+            border: none;
+            border-radius: 25px 25px 0 0;
+            color: #1a73e8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: #1a73e8;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 静态图片展示区域样式 */
+        .static-image-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        /* 统一所有图片显示方式 */
+        .image-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .image-item {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .image-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: none !important;
+        }
+        
+        .image-caption {
+            padding: 15px;
+            text-align: center;
+            color: #555;
+            background: #f8f9fa;
+        }
+        
+        /* 月度总结和4月计划区域样式 */
+        .summary-plan-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .summary-plan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .summary-box, .plan-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+        }
+        
+        .summary-box h3, .plan-box h3 {
+            color: #1a237e;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .content-area {
+            min-height: 300px;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            color: #333;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        
+        .placeholder-text {
+            color: #9aa0a6;
+            font-style: italic;
+            text-align: center;
+            margin-top: 100px;
+        }
+        
+        .placeholder-guide {
+            color: #5f6368;
+            font-size: 14px;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+        
+        .placeholder-guide ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .placeholder-guide li {
+            margin-bottom: 5px;
+        }
+        
+        .hint-box {
+            background: #e8f0fe;
+            border-left: 4px solid #1a73e8;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 20px;
+            color: #1a237e;
+        }
+        
+        .hint-box h4 {
+            margin-bottom: 5px;
+        }
+        
+        .hint-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .hint-box li {
+            margin-bottom: 5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0d62d9;
+        }
+        
+        .btn-secondary {
+            background: #f1f3f4;
+            color: #5f6368;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8eaed;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-card, .dashboard-header, .static-image-section, .summary-plan-section {
+                padding: 20px;
+            }
+            
+            .image-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-plan-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .image-container {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- 仪表板头部 -->
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">2026年3月运营+投放总结报告</h1>
+            <p class="dashboard-subtitle">基于实际数据的深度洞察与趋势分析</p>
+        </div>
+        
+        <!-- 关键指标卡片 -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">
+                    📈 月度投资回报率
+                </div>
+                <div class="metric-value">15.19</div>
+                <div class="metric-trend trend-down">
+                    <span>▼ 较峰值下降34%</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-title">
+                    💰 总广告支出
+                </div>
+                <div class="metric-value">$4,791</div>
+                <div class="metric-trend trend-up">
+                    <span>▲ 环比增长12%</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-title">
+                    🛍️ 总销售额
+                </div>
+                <div class="metric-value">$72,774</div>
+                <div class="metric-trend trend-up">
+                    <span>▲ 环比增长18%</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-title">
+                    📊 最佳表现周
+                </div>
+                <div class="metric-value">第1周</div>
+                <div class="metric-trend trend-up">
+                    <span>ROI: 22.96 (最高)</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 标签页导航 -->
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab active" data-tab="overview">概览</button>
+                <button class="tab" data-tab="trends">趋势分析</button>
+                <button class="tab" data-tab="comparison">渠道对比</button>
+                <button class="tab" data-tab="details">详细数据</button>
+            </div>
+            
+            <!-- 概览标签页 -->
+            <div class="tab-content active" id="overview">
+                <!-- 图表容器 -->
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">每周投资回报率趋势</h3>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #1a73e8;"></div>
+                                    <span>Facebook</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #34a853;"></div>
+                                    <span>Google</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="roiTrendChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">广告支出与销售额对比</h3>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #ff6b6b;"></div>
+                                    <span>广告支出</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #4ecdc4;"></div>
+                                    <span>销售额</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="spendSalesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 地区表现对比 -->
+                <div class="comparison-section">
+                    <h3 style="color: #1a237e; margin-bottom: 20px;">地区表现对比</h3>
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <div class="comparison-label">美国/英国市场销售额</div>
+                            <div class="comparison-value">$50,907</div>
+                            <div class="metric-trend trend-up" style="justify-content: center; margin-top: 5px;">
+                                <span>占比70%</span>
+                            </div>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="comparison-label">欧盟市场销售额</div>
+                            <div class="comparison-value">$21,867</div>
+                            <div class="metric-trend trend-down" style="justify-content: center; margin-top: 5px;">
+                                <span>占比30%</span>
+                            </div>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="comparison-label">美国/英国 ROI</div>
+                            <div class="comparison-value">18.5</div>
+                            <div class="roi-indicator roi-good" style="margin-top: 5px;">良好</div>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="comparison-label">欧盟 ROI</div>
+                            <div class="comparison-value">9.2</div>
+                            <div class="roi-indicator roi-fair" style="margin-top: 5px;">中等</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 趋势分析标签页 -->
+            <div class="tab-content" id="trends">
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">广告渠道表现趋势</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="channelTrendChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">累计销售额增长趋势</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="cumulativeSalesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insights-section">
+                    <h3 class="insights-title">趋势分析洞察</h3>
+                    <ul class="insights-list">
+                        <li class="insight-item">
+                            <strong>趋势1：ROI持续下降</strong> - 从第1周的22.96下降到第4周的12.24，下降幅度达47%，表明广告效果逐渐减弱
+                        </li>
+                        <li class="insight-item">
+                            <strong>趋势2：Google支出占比增加</strong> - 从第1周的57.2%增加到第4周的61.0%，但投资回报率未相应提升
+                        </li>
+                        <li class="insight-item">
+                            <strong>趋势3：地区表现分化</strong> - 美国/英国市场表现稳定，欧盟市场波动较大，第3周出现明显下滑
+                        </li>
+                        <li class="insight-item">
+                            <strong>趋势4：累计表现平稳</strong> - 虽然每周波动较大，但月度累计ROI保持在15.19的合理水平
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 渠道对比标签页 -->
+            <div class="tab-content" id="comparison">
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">渠道投资回报率对比</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="channelComparisonChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">渠道支出分布</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="spendDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insights-section">
+                    <h3 class="insights-title">渠道对比分析</h3>
+                    <div class="comparison-grid" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="comparison-item">
+                            <div class="comparison-label">Facebook 总支出</div>
+                            <div class="comparison-value">$1,870</div>
+                            <div style="margin-top: 10px; color: #5f6368; font-size: 14px;">占比39%</div>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="comparison-label">Google 总支出</div>
+                            <div class="comparison-value">$2,921</div>
+                            <div style="margin-top: 10px; color: #5f6368; font-size: 14px;">占比61%</div>
+                        </div>
+                    </div>
+                    
+                    <ul class="insights-list" style="margin-top: 20px;">
+                        <li class="insight-item">
+                            <strong>Facebook表现分析：</strong> 支出占比39%，投资回报率相对稳定，但呈现下降趋势
+                        </li>
+                        <li class="insight-item">
+                            <strong>Google表现分析：</strong> 支出占比61%，是主要投放渠道，但投资回报率波动较大
+                        </li>
+                        <li class="insight-item">
+                            <strong>优化建议：</strong> 考虑重新分配预算，将更多资源投向投资回报率更高的渠道和时段
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 详细数据标签页 -->
+            <div class="tab-content" id="details">
+                <div class="insights-section">
+                    <h3 class="insights-title">详细周度数据表</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>周次</th>
+                                <th>Facebook支出</th>
+                                <th>Google支出</th>
+                                <th>总支出</th>
+                                <th>美国/英国销售额</th>
+                                <th>欧盟销售额</th>
+                                <th>总销售额</th>
+                                <th>ROI</th>
+                                <th>表现评级</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>第1周 (3/2-8)</td>
+                                <td>$462.74</td>
+                                <td>$656.00</td>
+                                <td>$1,118.74</td>
+                                <td>$17,642.05</td>
+                                <td>$8,045.84</td>
+                                <td>$25,687.89</td>
+                                <td>22.96</td>
+                                <td><span class="roi-indicator roi-good">优秀</span></td>
+                            </tr>
+                            <tr>
+                                <td>第2周 (3/9-15)</td>
+                                <td>$448.96</td>
+                                <td>$606.00</td>
+                                <td>$1,054.96</td>
+                                <td>$8,159.67</td>
+                                <td>$6,919.57</td>
+                                <td>$15,079.24</td>
+                                <td>14.29</td>
+                                <td><span class="roi-indicator roi-fair">良好</span></td>
+                            </tr>
+                            <tr>
+                                <td>第3周 (3/16-22)</td>
+                                <td>$411.63</td>
+                                <td>$650.00</td>
+                                <td>$1,061.63</td>
+                                <td>$12,909.35</td>
+                                <td>$424.62</td>
+                                <td>$13,333.97</td>
+                                <td>12.55</td>
+                                <td><span class="roi-indicator roi-fair">中等</span></td>
+                            </tr>
+                            <tr>
+                                <td>第4周 (3/23-29)</td>
+                                <td>$380.04</td>
+                                <td>$766.00</td>
+                                <td>$1,146.04</td>
+                                <td>$10,949.84</td>
+                                <td>$3,078.64</td>
+                                <td>$14,028.48</td>
+                                <td>12.24</td>
+                                <td><span class="roi-indicator roi-fair">中等</span></td>
+                            </tr>
+                            <tr style="background: #f8f9fa; font-weight: bold;">
+                                <td>月度总计</td>
+                                <td>$1,870.00</td>
+                                <td>$2,921.00</td>
+                                <td>$4,791.00</td>
+                                <td>$50,907.31</td>
+                                <td>$21,866.83</td>
+                                <td>$72,774.14</td>
+                                <td>15.19</td>
+                                <td><span class="roi-indicator roi-good">良好</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="recommendation">
+                        <h4 style="color: #137333; margin-bottom: 10px;">📈 关键建议</h4>
+                        <p>1. <strong>优化Google广告投放：</strong> Google支出占比61%但投资回报率下降明显，建议进行关键词和受众优化</p>
+                        <p>2. <strong>加强欧盟市场策略：</strong> 欧盟市场投资回报率较低，需要针对性调整广告策略</p>
+                        <p>3. <strong>控制成本增长：</strong> 广告支出环比增长12%，但销售额增长18%，应保持合理支出增速</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 展示区域 -->
+        <div class="static-image-section">
+            <h2 class="section-title">📷 展示区</h2>
+
+            <div class="image-container">
+                <div class="image-item">
+                    <img src="/MAR/博客.png" alt="博客.png">
+                    <p class="image-caption">主站博客GA4数据</p>
+                </div>
+                
+                <div class="image-item">
+                    <img src="/MAR/GA4.png" alt="GA4.png">
+                    <p class="image-caption">置顶这个产品后出单</p>
+                </div>
+                
+                <div class="image-item">
+                    <img src="/MAR/快速占领haooyrun F18博客内容.PNG" alt="快速占领haooyrun F18博客内容.PNG">
+                    <p class="image-caption">博客占领新品关键词</p>
+                </div>
+                
+                <div class="image-item">
+                    <img src="/MAR/促销与客户认可的板块.PNG" alt="促销与客户认可的板块">
+                    <p class="image-caption">促销与客户认可的板块</p>
+                </div>
+                
+                <div class="image-item">
+                    <img src="/MAR/库存管理.png" alt="库存管理.png">
+                    <p class="image-caption">库存管理网页</p>
+                </div>
+            </div>
+           
+        
+        <!-- 新增的月度总结和4月计划区域 -->
+        <div class="summary-plan-section">
+            <h2 class="section-title">📊 月度总结和4月计划</h2>
+            
+            <div class="summary-plan-grid">
+                <div class="summary-box">
+                    <h3>📈 3月月度总结</h3>
+                    <div class="content-area">
+                        <div class="placeholder-text">
+                            请在此处填写3月份的广告投放工作总结
+                        </div>
+                    </div>
+                    <div class="placeholder-guide">
+                        <strong>总结内容建议：</strong>
+                        <ul>
+                            <li>本月广告投放的主要成绩和亮点</li>
+                            <li>遇到的问题和挑战</li>
+                            <li>关键数据分析和洞察</li>
+                            <li>经验教训和改进建议</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="plan-box">
+                    <h3>🎯 4月工作计划</h3>
+                    <div class="content-area">
+                        <div class="placeholder-text">
+                            请在此处填写4月份的广告投放工作计划
+                        </div>
+                    </div>
+                    <div class="placeholder-guide">
+                        <strong>计划内容建议：</strong>
+                        <ul>
+                            <li>目标设定（销售额、投资回报率、预算等）</li>
+                            <li>广告投放策略调整计划</li>
+                            <li>渠道优化方向和具体措施</li>
+                            <li>预期成果和时间节点</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+
+    <script>
+        // 数据准备
+        const weeklyData = {
+            weeks: ['第1周', '第2周', '第3周', '第4周'],
+            facebookROI: [25.1, 16.8, 13.5, 12.8],
+            googleROI: [21.2, 12.5, 11.8, 11.9],
+            spend: [1118.74, 1054.96, 1061.63, 1146.04],
+            sales: [25687.89, 15079.24, 13333.97, 14028.48],
+            facebookSpend: [462.74, 448.96, 411.63, 380.04],
+            googleSpend: [656, 606, 650, 766],
+            cumulativeSales: [25687.89, 40767.13, 54101.10, 68129.58]
+        };
+
+        // 1. ROI趋势图
+        const roiCtx = document.getElementById('roiTrendChart').getContext('2d');
+        new Chart(roiCtx, {
+            type: 'line',
+            data: {
+                labels: weeklyData.weeks,
+                datasets: [
+                    {
+                        label: 'Facebook ROI',
+                        data: weeklyData.facebookROI,
+                        borderColor: '#1a73e8',
+                        backgroundColor: 'rgba(26, 115, 232, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Google ROI',
+                        data: weeklyData.googleROI,
+                        borderColor: '#34a853',
+                        backgroundColor: 'rgba(52, 168, 83, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: '投资回报率'
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. 支出与销售额对比图
+        const spendSalesCtx = document.getElementById('spendSalesChart').getContext('2d');
+        new Chart(spendSalesCtx, {
+            type: 'bar',
+            data: {
+                labels: weeklyData.weeks,
+                datasets: [
+                    {
+                        label: '广告支出',
+                        data: weeklyData.spend,
+                        backgroundColor: 'rgba(255, 107, 107, 0.8)',
+                        borderColor: '#ff6b6b',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '销售额',
+                        data: weeklyData.sales,
+                        backgroundColor: 'rgba(78, 205, 196, 0.8)',
+                        borderColor: '#4ecdc4',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: '广告支出 ($)'
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: '销售额 ($)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. 渠道趋势图
+        const channelTrendCtx = document.getElementById('channelTrendChart').getContext('2d');
+        new Chart(channelTrendCtx, {
+            type: 'line',
+            data: {
+                labels: weeklyData.weeks,
+                datasets: [
+                    {
+                        label: 'Facebook支出',
+                        data: weeklyData.facebookSpend,
+                        borderColor: '#1a73e8',
+                        backgroundColor: 'rgba(26, 115, 232, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Google支出',
+                        data: weeklyData.googleSpend,
+                        borderColor: '#34a853',
+                        backgroundColor: 'rgba(52, 168, 83, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '广告支出 ($)'
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 4. 累计销售额图
+        const cumulativeSalesCtx = document.getElementById('cumulativeSalesChart').getContext('2d');
+        new Chart(cumulativeSalesCtx, {
+            type: 'line',
+            data: {
+                labels: weeklyData.weeks,
+                datasets: [{
+                    label: '累计销售额',
+                    data: weeklyData.cumulativeSales,
+                    borderColor: '#9c27b0',
+                    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '累计销售额 ($)'
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 5. 渠道对比图
+        const channelComparisonCtx = document.getElementById('channelComparisonChart').getContext('2d');
+        new Chart(channelComparisonCtx, {
+            type: 'radar',
+            data: {
+                labels: ['投资回报率', '支出效率', '增长趋势', '稳定性', '市场覆盖'],
+                datasets: [
+                    {
+                        label: 'Facebook',
+                        data: [8, 7, 6, 8, 7],
+                        backgroundColor: 'rgba(26, 115, 232, 0.2)',
+                        borderColor: '#1a73e8',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Google',
+                        data: [6, 9, 7, 6, 9],
+                        backgroundColor: 'rgba(52, 168, 83, 0.2)',
+                        borderColor: '#34a853',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    }
+                }
+            }
+        });
+
+        // 6. 支出分布图
+        const spendDistributionCtx = document.getElementById('spendDistributionChart').getContext('2d');
+        new Chart(spendDistributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Facebook支出', 'Google支出'],
+                datasets: [{
+                    data: [1870, 2921],
+                    backgroundColor: [
+                        'rgba(26, 115, 232, 0.8)',
+                        'rgba(52, 168, 83, 0.8)'
+                    ],
+                    borderColor: [
+                        '#1a73e8',
+                        '#34a853'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${context.label}: $${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 标签页切换功能
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // 过滤器功能
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
