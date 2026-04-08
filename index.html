@@ -900,7 +900,153 @@
                     <p class="image-caption">JOY总的</p>
                 </div>
             </div>  
-        
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .report-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 5px solid #4CAF50;
+        }
+        .card h4 { margin: 0; color: #666; font-size: 0.9rem; }
+        .card p { margin: 10px 0 0; font-size: 1.4rem; font-weight: bold; color: #2e7d32; }
+        .chart-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .analysis-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .tag {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-container">
+    <div class="header">
+        <h2>JOYOR 03月 广告投放与销售可视化报告</h2>
+    </div>
+
+    <div class="summary-grid">
+        <div class="card">
+            <h4>总广告成本</h4>
+            <p>$3,735.26</p>
+        </div>
+        <div class="card">
+            <h4>总销售额 (退款后)</h4>
+            <p>$20,096.79</p>
+        </div>
+        <div class="card">
+            <h4>广告 ROI</h4>
+            <p>3.31</p>
+        </div>
+        <div class="card" style="border-left-color: #ff9800;">
+            <h4>总综合 ROI</h4>
+            <p>5.38</p>
+        </div>
+    </div>
+
+    <div class="chart-section">
+        <canvas id="roiChart"></canvas>
+    </div>
+
+    <div class="analysis-box">
+        <strong><span class="tag">深度总结</span> 数据洞察分析：</strong>
+        <ul>
+            <li><strong>ROI 表现：</strong> 总体广告 ROI 为 <b>3.31</b>，而结合非广告流量后的总 ROI 达到了 <b>5.38</b>，说明店铺具备较强的自然流量转化能力或品牌溢价。</li>
+            <li><strong>渠道差异化：</strong> 数据显示四个子渠道表现不一。其中 <b>渠道 4</b> 的表现最为惊人，其总 ROI 高达 <b>11.16</b>，远超平均水平，建议加大该渠道的投入。</li>
+            <li><strong>成本转化：</strong> 广告销售占总销售额比例约 <b>61.4%</b>，显示广告依然是当前最主要的驱动力。</li>
+            <li><strong>异常提示：</strong> 原始表格中“推广总销售”汇总项出现 <i>#######</i> 溢出符号，但在可视化中已根据明细项完成逻辑修正与核对。</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('roiChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['子渠道 1', '子渠道 2', '子渠道 3', '子渠道 4'],
+            datasets: [{
+                label: '广告 ROI',
+                data: [4.00, 3.34, 2.48, 3.49],
+                backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                borderColor: 'rgba(76, 175, 80, 1)',
+                borderWidth: 1
+            }, {
+                label: '总综合 ROI',
+                data: [4.96, 4.77, 2.85, 11.16],
+                backgroundColor: 'rgba(255, 152, 0, 0.6)',
+                borderColor: 'rgba(255, 152, 0, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '各子渠道广告 ROI vs 综合 ROI 对比'
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'ROI 数值' }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>        
         
 <!-- 新增的月度总结和4月计划区域 -->
         <div class="summary-plan-section">
